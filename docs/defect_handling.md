@@ -7,7 +7,9 @@ SPLOT 分区避坏孔实现说明
 
 核心输入
 --------
-- 序列文件：TSV/Excel，列包含 Partition 或 ID（首字符为分区标识）+ Seq。
+- 序列文件：TSV/Excel，列包含 Partition 或 ID + Seq。  
+  - 使用 Partition 列时，整列内容作为分区索引（需与分区掩模中的标志一致）。  
+  - 使用 ID 列时，**按 "-" 分隔后取第一段作为分区索引**（例如 `P01-001` -> `P01`），以支持超过单个字母的分区编号。
 - 分区掩模：TXT，每行一个分区标志（如 A/B/C/M 或 “0” 表示无效位）。
 - 坏孔列表：TXT，整数编号。编号规则依据打印密度划分 A 线 / B 线。
 
@@ -38,7 +40,7 @@ SPLOT 分区避坏孔实现说明
 
 C# 版实现（`SPLOT/MainForm.cs`）
 -------------------------------
-- 加载
+-- 加载
   - 序列：`LoadAMSeqsFromTSV`（约 900 行）读取 TSV，首列首字符作分区，存入 `srcAMPartitionSeqs`；记录 `seqLength`/`seqNumber`。
   - 分区掩模：`LoadPartition` → `srcPartitionFlags`。
   - 坏孔：`LoadDefectData`（约 1140 行）解析坏孔编号，<319 为 A 线，其余 B 线；排序后存 `defectALocations`/`defectBLocations`。
@@ -63,8 +65,12 @@ C# 版实现（`SPLOT/MainForm.cs`）
 Python 版实现（CLI）
 -------------------
 - 主要文件：`splot_cli/core.py`, `splot_cli/file_handlers.py`, `splot_cli/main.py`, `splot_cli/models.py`。
-- 加载
-  - 序列：`SequenceFileHandler.load_sequences_from_tsv`（`file_handlers.py`）寻找 `Seq` 列，分区列优先 Partition、ID，或首列首字符；可用 `validate_sequence` 检查合法性；记录并返回 `SequenceData`（包括**最大序列长度 `sequence_length`**，并在终端打印出来，便于后续选择 `mask_length`）。
+-- 加载
+  - 序列：`SequenceFileHandler.load_sequences_from_tsv`（`file_handlers.py`）寻找 `Seq` 列，分区列优先 Partition、ID，或首列：  
+    - 若使用 Partition 列，整列内容作为分区索引。  
+    - 若使用 ID 列，则按 "-" 分隔后取第一段作为分区索引（与分区掩模中的标志对应）。  
+    - 若两者都不存在，则使用首列并按同样规则处理。  
+    - 可用 `validate_sequence` 检查合法性；记录并返回 `SequenceData`（包括**最大序列长度 `sequence_length`**，并在终端打印出来，便于后续选择 `mask_length`）。
   - Excel：`load_sequences_from_excel`（sheet 默认 flank）。
   - 分区掩模：`PartitionFileHandler.load_partition_data` 读列表，计算分区数量/标志长度。
   - 坏孔：`DefectFileHandler.load_defect_data` 解析坏孔编号，<319 为 A 线，其余 B 线，排序。

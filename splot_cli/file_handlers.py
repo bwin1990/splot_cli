@@ -53,8 +53,13 @@ class SequenceFileHandler(FileHandler):
             
             # 使用tqdm显示进度
             for idx, row in tqdm(df.iterrows(), total=len(df), desc="处理序列"):
-                key_source = row[partition_col]
-                key = str(key_source)[0]  # 取第一个字符作为分区标识
+                key_raw = str(row[partition_col]).strip()
+                # 若使用 ID 列，则按 "-" 分隔后取第一段作为分区索引，
+                # 以支持更多类型的分区编号（例如 "P01-001" -> "P01"）
+                if partition_col == 'ID':
+                    key = key_raw.split('-', 1)[0]
+                else:
+                    key = key_raw
                 seq = str(row['Seq'])
                 
                 # 序列合法性检查
@@ -98,9 +103,21 @@ class SequenceFileHandler(FileHandler):
             
             partition_sequences = {}
             all_sequences = []
-            
+
+            # 分区字段解析，优先使用 Partition，其次 ID，再次首列
+            if 'Partition' in df.columns:
+                partition_col = 'Partition'
+            elif 'ID' in df.columns:
+                partition_col = 'ID'
+            else:
+                partition_col = df.columns[0]
+
             for idx, row in tqdm(df.iterrows(), total=len(df), desc="处理Excel序列"):
-                key = str(row.iloc[0])[0]  # 取第一个字符作为分区标识
+                key_raw = str(row[partition_col]).strip()
+                if partition_col == 'ID':
+                    key = key_raw.split('-', 1)[0]
+                else:
+                    key = key_raw
                 seq = str(row['Seq'])
                 
                 if key not in partition_sequences:

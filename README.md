@@ -82,13 +82,14 @@ splot -i sequences.tsv -p partition.txt -d defect.txt -o output/
 
 ### 输入序列文件 (.tsv/.xlsx)
 ```
-Partition	Seq
-A	ATCGATCGATCG...
-B	GCTAGCTAGCTA...
-M	AAAATTTTCCCC...
+ID	Seq
+A-xxx	ATCGATCGATCG...
+B-xxx	GCTAGCTAGCTA...
+M-xxx	AAAATTTTCCCC...
 ```
 
-### 分区文件 (.txt)
+### 分区文件 (.txt) 
+指明芯片合成阵列中每个position的分区index，因此分区类别应该与输入序列文件相对应
 ```
 A
 A
@@ -100,6 +101,7 @@ M
 ```
 
 ### 坏孔文件 (.txt)
+合成阵列中整行需要避开的喷孔序列号。
 ```
 1,5,10,15,320,325
 ```
