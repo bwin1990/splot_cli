@@ -1,0 +1,7 @@
+pandas
+openpyxl
+numpy
+click
+pydantic
+rich
+tqdm
