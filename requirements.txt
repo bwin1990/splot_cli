@@ -1,7 +1,7 @@
-pandas
-openpyxl
-numpy
-click
-pydantic
-rich
-tqdm
+pandas>=1.5.0
+openpyxl>=3.0.0
+numpy>=1.21.0
+click>=8.0.0
+pydantic>=1.10.0
+rich>=12.0.0
+tqdm>=4.64.0
