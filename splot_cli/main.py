@@ -170,7 +170,11 @@ def run(input_file, partition_file, defect_file, output_path, rows, cols,
         
         # 执行处理
         core = SPLOTCore()
-        result = core.process_sequences(options)
+        # 交互模式下已经载入过一次序列数据，这里复用以避免重复读取文件
+        if interactive:
+            result = core.process_sequences(options, sequence_data=seq_data)
+        else:
+            result = core.process_sequences(options)
         
         if result.success:
             show_success_summary(result)

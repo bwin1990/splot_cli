@@ -114,14 +114,15 @@ class SPLOTCore:
     def __init__(self):
         self.sequence_processor = SequenceProcessor()
     
-    def process_sequences(self, options: ProcessingOptions) -> ProcessingResult:
+    def process_sequences(self, options: ProcessingOptions, sequence_data: SequenceData | None = None) -> ProcessingResult:
         """处理DNA序列的主要流程"""
         try:
             console.print("[bold cyan]开始处理DNA序列...[/bold cyan]")
             
-            # 1. 加载输入文件
+            # 1. 加载输入文件（如已在上层载入，则复用，避免重复读文件）
             console.print("\n[yellow]步骤 1/8: 加载输入文件[/yellow]")
-            sequence_data = self._load_sequence_data(options)
+            if sequence_data is None:
+                sequence_data = self._load_sequence_data(options)
 
             # 若未显式指定屏蔽位长度，则自动使用序列最大长度
             if options.mask_length == 0:
